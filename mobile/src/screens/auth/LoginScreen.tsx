@@ -13,14 +13,16 @@ import {
   AlertText,
   Center,
   Heading,
+  Badge,
 } from 'native-base';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function LoginScreen({ navigation }: any) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const { signIn } = useAuth();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -32,8 +34,7 @@ export default function LoginScreen({ navigation }: any) {
     setError('');
 
     try {
-      const auth = getAuth();
-      await signInWithEmailAndPassword(auth, email, password);
+      await signIn(email, password);
     } catch (error: any) {
       setError(error.message);
     } finally {
@@ -51,6 +52,15 @@ export default function LoginScreen({ navigation }: any) {
           <Text fontSize="md" color="gray.500" textAlign="center">
             Sign in to your account
           </Text>
+
+          <Alert status="info" variant="left-accent">
+            <AlertIcon />
+            <VStack space={1}>
+              <AlertText fontWeight="bold">Demo Mode - Test Credentials:</AlertText>
+              <Text fontSize="xs">Email: demo@fan.com</Text>
+              <Text fontSize="xs">Password: demo123</Text>
+            </VStack>
+          </Alert>
 
           {error ? (
             <Alert status="error">

@@ -1,27 +1,32 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 
-const firebaseConfig = {
-  apiKey: "your-api-key",
-  authDomain: "your-auth-domain",
-  projectId: "your-project-id",
-  storageBucket: "your-storage-bucket",
-  messagingSenderId: "your-messaging-sender-id",
-  appId: "your-app-id"
-};
+const DEMO_MODE = true;
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+const createMockUser = (email: string) => ({
+  uid: 'demo-user-123',
+  email: email,
+  displayName: 'Demo User',
+  emailVerified: true,
+});
+
+const DEMO_CREDENTIALS = [
+  { email: 'demo@fan.com', password: 'demo123' },
+  { email: 'test@fan.com', password: 'test123' },
+  { email: 'user@fan.com', password: 'user123' },
+];
 
 interface AuthContextType {
-  user: User | null;
+  user: any | null;
   loading: boolean;
+  signIn: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
+  signIn: async () => {},
+  signOut: async () => {},
 });
 
 export const useAuth = () => {
@@ -33,20 +38,42 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+    const timer = setTimeout(() => {
       setLoading(false);
-    });
+    }, 1000);
 
-    return unsubscribe;
+    return () => clearTimeout(timer);
   }, []);
 
+  const signIn = async (email: string, password: string) => {
+    if (!DEMO_MODE) {
+      throw new Error('Firebase authentication not configured');
+    }
+
+    const validCredential = DEMO_CREDENTIALS.find(
+      cred => cred.email === email && cred.password === password
+    );
+
+    if (!validCredential) {
+      throw new Error('Invalid email or password. Try: demo@fan.com / demo123');
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    const mockUser = createMockUser(email);
+    setUser(mockUser);
+  };
+
+  const signOut = async () => {
+    setUser(null);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

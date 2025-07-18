@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Platform } from 'react-native';
 import {
   Box,
   VStack,
@@ -12,9 +13,15 @@ import {
   Badge,
   Pressable,
 } from 'native-base';
-import { Ionicons } from '@expo/vector-icons'; '@expo/vector-icons';
-import MapView, { Marker } from 'react-native-maps';
+import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
+
+let MapView, Marker;
+if (Platform.OS !== 'web') {
+  const maps = require('react-native-maps');
+  MapView = maps.default;
+  Marker = maps.Marker;
+}
 
 const mockStations = [
   {
@@ -154,27 +161,40 @@ export default function StationFinderScreen() {
             onPress={() => setShowMap(!showMap)}
             leftIcon={<Ionicons name="map-outline" size={16} color={showMap ? 'white' : '#2196f3'} />}
           >
-            Map
+            {Platform.OS === 'web' ? 'Map (Mobile Only)' : 'Map'}
           </Button>
         </HStack>
 
         {showMap ? (
           <Box flex={1} rounded="lg" overflow="hidden">
-            <MapView
-              style={{ flex: 1 }}
-              region={userLocation}
-              showsUserLocation={true}
-              showsMyLocationButton={true}
-            >
-              {filteredStations.map((station) => (
-                <Marker
-                  key={station.id}
-                  coordinate={station.coordinates}
-                  title={station.name}
-                  description={station.address}
-                />
-              ))}
-            </MapView>
+            {Platform.OS !== 'web' ? (
+              <MapView
+                style={{ flex: 1 }}
+                region={userLocation}
+                showsUserLocation={true}
+                showsMyLocationButton={true}
+              >
+                {filteredStations.map((station) => (
+                  <Marker
+                    key={station.id}
+                    coordinate={station.coordinates}
+                    title={station.name}
+                    description={station.address}
+                  />
+                ))}
+              </MapView>
+            ) : (
+              <Box flex={1} bg="gray.100" justifyContent="center" alignItems="center" p={4}>
+                <VStack space={3} alignItems="center">
+                  <Ionicons name="map-outline" size={48} color="gray" />
+                  <Heading size="md" color="gray.600">Map View</Heading>
+                  <Text textAlign="center" color="gray.500">
+                    Interactive map is available on mobile devices. 
+                    Use the list view below to browse stations.
+                  </Text>
+                </VStack>
+              </Box>
+            )}
           </Box>
         ) : (
           <ScrollView flex={1} showsVerticalScrollIndicator={false}>

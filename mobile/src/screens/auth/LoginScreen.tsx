@@ -8,12 +8,8 @@ import {
   Button,
   FormControl,
   Link,
-  Alert,
-  AlertIcon,
-  AlertText,
   Center,
   Heading,
-  Badge,
 } from 'native-base';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -53,20 +49,18 @@ export default function LoginScreen({ navigation }: any) {
             Sign in to your account
           </Text>
 
-          <Alert status="info" variant="left-accent">
-            <AlertIcon />
+          <Box bg="blue.50" p={3} rounded="md" borderWidth={1} borderColor="blue.200">
             <VStack space={1}>
-              <AlertText fontWeight="bold">Demo Mode - Test Credentials:</AlertText>
-              <Text fontSize="xs">Email: demo@fan.com</Text>
-              <Text fontSize="xs">Password: demo123</Text>
+              <Text fontWeight="bold" color="blue.700">Demo Mode - Test Credentials:</Text>
+              <Text fontSize="xs" color="blue.600">Email: demo@fan.com</Text>
+              <Text fontSize="xs" color="blue.600">Password: demo123</Text>
             </VStack>
-          </Alert>
+          </Box>
 
           {error ? (
-            <Alert status="error">
-              <AlertIcon />
-              <AlertText>{error}</AlertText>
-            </Alert>
+            <Box bg="red.50" p={3} rounded="md" borderWidth={1} borderColor="red.200">
+              <Text color="red.700">{error}</Text>
+            </Box>
           ) : null}
 
           <FormControl>
